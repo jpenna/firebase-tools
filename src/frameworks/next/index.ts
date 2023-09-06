@@ -578,8 +578,13 @@ export async function getDevModeHandle(dir: string, _: string, hostingEmulatorIn
   const handler = nextApp.getRequestHandler();
   await nextApp.prepare();
 
-  return simpleProxy(async (req: IncomingMessage, res: ServerResponse) => {
+  return simpleProxy(async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const parsedUrl = parse(req.url!, true);
+    if (req.url?.startsWith("/api")) {
+      next();
+      return;
+    }
+
     await handler(req, res, parsedUrl);
   });
 }
